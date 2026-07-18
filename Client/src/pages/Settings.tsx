@@ -118,6 +118,19 @@ const Settings: React.FC = () => {
                         </div>
                     </form>
                 </div>
+
+                <div className="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <h3 className="font-bold text-slate-800 mb-2 text-md">My Vehicle Management</h3>
+                    <p className="text-slate-500 text-sm mb-4">
+                        Register, edit, or delete personal vehicles associated with your profile to offer rides.
+                    </p>
+                    <button
+                        onClick={() => navigate('/vehicles')}
+                        className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                    >
+                        Manage Registered Vehicles
+                    </button>
+                </div>
             </main>
         </div>
     )

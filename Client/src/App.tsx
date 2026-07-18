@@ -7,6 +7,8 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import AdminPanel from './pages/AdminPanel'
 import Settings from './pages/Settings'
+import Vehicles from './pages/Vehicles'
+import OfferRide from './pages/OfferRide'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth()
@@ -52,6 +54,22 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Settings />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/vehicles" 
+                        element={
+                            <ProtectedRoute>
+                                <Vehicles />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/offer-ride" 
+                        element={
+                            <ProtectedRoute>
+                                <OfferRide />
                             </ProtectedRoute>
                         } 
                     />
