@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import type { Request, Response } from 'express'
 import { type AuthRequest } from '../middlewares/authenticate.js'
 import Wallet from '../models/Wallet.js'
+import Booking from '../models/Booking.js'
 import httpResponse from '../utils/httpResponse.js'
 import responseMessage from '../constant/responseMessage.js'
 import HttpException from '../utils/httpException.js'
@@ -60,18 +61,25 @@ export default {
             )
         }
 
-        // Razorpay expects amount in paise (1 INR = 100 paise)
-        const orderOptions = {
-            amount: parsedAmount * 100,
-            currency: 'INR',
-            receipt: `wallet_topup_${authReq.user._id}_${Date.now()}`,
-            notes: {
-                employeeId: authReq.user._id.toString(),
-                purpose: 'wallet_topup'
-            }
-        }
+        // Razorpay receipt: max 40 chars
+        const receipt = `wu_${String(authReq.user._id).slice(-8)}_${Date.now().toString().slice(-8)}`
 
-        const order = await razorpay.orders.create(orderOptions)
+        let order
+        try {
+            order = await razorpay.orders.create({
+                amount: parsedAmount * 100, // paise
+                currency: 'INR',
+                receipt,
+                notes: { purpose: 'wallet_topup' }
+            })
+        } catch (rzpErr: any) {
+            const msg =
+                rzpErr?.error?.description ||
+                rzpErr?.error?.reason ||
+                rzpErr?.message ||
+                'Razorpay order creation failed. Please check your API keys.'
+            throw new HttpException(502, msg)
+        }
 
         httpResponse(req, res, 201, 'Razorpay order created.', {
             orderId: order.id,
@@ -178,5 +186,140 @@ export default {
         const paginated = allTxns.slice((page - 1) * limit, page * limit)
 
         httpResponse(req, res, 200, responseMessage.SUCCESS, { transactions: paginated, total, page, limit })
+    }),
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // RIDE-FARE PAYMENT FLOW (separate from wallet top-up)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // POST /wallet/ride-payment/order
+    // Creates a Razorpay order for exactly the ride fare.
+    // No amount allowlist — accepts any positive fare.
+    createRidePaymentOrder: asyncHandler(async (req: Request, res: Response) => {
+        const authReq = req as AuthRequest
+        if (!authReq.user) throw new HttpException(401, responseMessage.UNAUTHORIZED)
+
+        const { bookingId } = req.body
+
+        if (!bookingId) throw new HttpException(400, 'bookingId is required.')
+
+        const booking = await Booking.findById(bookingId).populate('rideId')
+        if (!booking) throw new HttpException(404, responseMessage.NOT_FOUND('Booking'))
+        if (String(booking.passengerId) !== String(authReq.user._id)) {
+            throw new HttpException(403, 'You are not the passenger of this booking.')
+        }
+        if (booking.status !== 'Completed') {
+            throw new HttpException(400, 'Ride must be completed before payment.')
+        }
+
+        const fare = booking.fareTotal
+        if (!fare || fare <= 0) throw new HttpException(400, 'Invalid fare amount on booking.')
+
+        // Razorpay receipt: max 40 chars
+        const receipt = `rf_${String(bookingId).slice(-10)}_${Date.now().toString().slice(-8)}`
+
+        let order
+        try {
+            order = await razorpay.orders.create({
+                amount: Math.round(fare * 100), // paise (integer)
+                currency: 'INR',
+                receipt,
+                notes: {
+                    bookingId: String(bookingId),
+                    purpose: 'ride_fare_payment'
+                }
+            })
+        } catch (rzpErr: any) {
+            const msg =
+                rzpErr?.error?.description ||
+                rzpErr?.error?.reason ||
+                rzpErr?.message ||
+                'Razorpay order creation failed. Please check your API keys.'
+            throw new HttpException(502, msg)
+        }
+
+        httpResponse(req, res, 201, 'Ride fare order created.', {
+            orderId: order.id,
+            amount: fare,
+            amountInPaise: Math.round(fare * 100),
+            currency: 'INR',
+            key: config.RAZORPAY_KEY_ID,
+            bookingId
+        })
+    }),
+
+    // POST /wallet/ride-payment/verify
+    // Verifies Razorpay HMAC signature, then:
+    //   1. Credits driver's wallet with the fare amount
+    //   2. Records debit on passenger's wallet (audit trail)
+    //   3. Does NOT change booking status (already Completed)
+    verifyRidePayment: asyncHandler(async (req: Request, res: Response) => {
+        const authReq = req as AuthRequest
+        if (!authReq.user) throw new HttpException(401, responseMessage.UNAUTHORIZED)
+
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId } = req.body
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !bookingId) {
+            throw new HttpException(400, 'Missing required payment verification fields.')
+        }
+
+        // HMAC-SHA256 verification
+        const expectedSig = crypto
+            .createHmac('sha256', config.RAZORPAY_KEY_SECRET)
+            .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+            .digest('hex')
+
+        if (expectedSig !== razorpay_signature) {
+            throw new HttpException(400, 'Payment verification failed. Invalid or tampered signature.')
+        }
+
+        // Fetch booking
+        const booking = await Booking.findById(bookingId).populate({
+            path: 'rideId',
+            select: 'driverId',
+            populate: { path: 'driverId', select: 'name' }
+        })
+        if (!booking) throw new HttpException(404, responseMessage.NOT_FOUND('Booking'))
+        if (String(booking.passengerId) !== String(authReq.user._id)) {
+            throw new HttpException(403, 'You are not the passenger of this booking.')
+        }
+
+        const fare = booking.fareTotal
+        const ride = booking.rideId as any
+        const driverId = ride?.driverId?._id ?? ride?.driverId
+
+        if (!driverId) throw new HttpException(400, 'Unable to resolve driver for this ride.')
+
+        // 1. Credit driver's wallet
+        let driverWallet = await Wallet.findOne({ employeeId: driverId })
+        if (!driverWallet) {
+            driverWallet = await Wallet.create({ employeeId: driverId, balance: 0, transactions: [] })
+        }
+        driverWallet.balance += fare
+        driverWallet.transactions.push({
+            amount: fare,
+            type: 'Credit',
+            description: `Ride fare received from passenger (Razorpay) — Payment ID: ${razorpay_payment_id}`
+        })
+        await driverWallet.save()
+
+        // 2. Record debit on passenger's wallet (audit trail — balance not deducted since they paid via Razorpay)
+        let passengerWallet = await Wallet.findOne({ employeeId: authReq.user._id })
+        if (!passengerWallet) {
+            passengerWallet = await Wallet.create({ employeeId: authReq.user._id, balance: 0, transactions: [] })
+        }
+        passengerWallet.transactions.push({
+            amount: fare,
+            type: 'Debit',
+            description: `Ride fare paid via Razorpay — Payment ID: ${razorpay_payment_id}`
+        })
+        await passengerWallet.save()
+
+        httpResponse(req, res, 200, `Ride fare of ₹${fare} paid successfully. Driver wallet credited.`, {
+            amountPaid: fare,
+            paymentId: razorpay_payment_id,
+            driverCredited: true
+        })
     })
 }
+

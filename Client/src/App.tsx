@@ -16,6 +16,7 @@ import DriverDashboard from './pages/DriverDashboard'
 import WalletPage from './pages/Wallet'
 import SavedPlaces from './pages/SavedPlaces'
 import TripHistory from './pages/TripHistory'
+import LiveRide from './pages/LiveRide'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth()
@@ -133,6 +134,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <TripHistory />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/live-ride/:id" 
+                        element={
+                            <ProtectedRoute>
+                                <LiveRide />
                             </ProtectedRoute>
                         } 
                     />

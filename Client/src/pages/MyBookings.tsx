@@ -155,30 +155,41 @@ const MyBookings: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Driver info row */}
-                                <div className="flex items-center justify-between">
-                                    <div className="text-xs text-slate-500 space-y-0.5">
-                                        {booking.rideId?.driverId && (
-                                            <p>Driver: <span className="font-semibold text-slate-700">{booking.rideId.driverId.name}</span></p>
-                                        )}
-                                        {booking.rideId?.vehicleId && (
-                                            <p>Vehicle: <span className="font-semibold text-slate-700">{booking.rideId.vehicleId.model}</span>
-                                                <span className="font-mono ml-1 text-slate-400">({booking.rideId.vehicleId.registrationNumber})</span>
-                                            </p>
-                                        )}
-                                        <p>Payment: <span className="font-semibold text-slate-700">{booking.paymentMethod}</span></p>
-                                    </div>
+                                    {/* Actions */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-xs text-slate-500 space-y-0.5">
+                                            {booking.rideId?.driverId && (
+                                                <p>Driver: <span className="font-semibold text-slate-700">{booking.rideId.driverId.name}</span></p>
+                                            )}
+                                            {booking.rideId?.vehicleId && (
+                                                <p>Vehicle: <span className="font-semibold text-slate-700">{booking.rideId.vehicleId.model}</span>
+                                                    <span className="font-mono ml-1 text-slate-400">({booking.rideId.vehicleId.registrationNumber})</span>
+                                                </p>
+                                            )}
+                                            <p>Payment: <span className="font-semibold text-slate-700">{booking.paymentMethod}</span></p>
+                                        </div>
 
-                                    {/* Cancel action for pending bookings */}
-                                    {booking.status === 'Pending' && (
-                                        <button
-                                            onClick={() => handleCancel(booking._id)}
-                                            className="text-xs px-3 py-1.5 border border-red-100 text-red-500 hover:bg-red-50 font-semibold rounded-lg transition-colors"
-                                        >
-                                            Cancel Request
-                                        </button>
-                                    )}
-                                </div>
+                                        <div className="flex flex-col gap-2">
+                                            {/* Cancel for pending */}
+                                            {booking.status === 'Pending' && (
+                                                <button
+                                                    onClick={() => handleCancel(booking._id)}
+                                                    className="text-xs px-3 py-1.5 border border-red-100 text-red-500 hover:bg-red-50 font-semibold rounded-lg transition-colors"
+                                                >
+                                                    Cancel Request
+                                                </button>
+                                            )}
+                                            {/* Track live ride for confirmed */}
+                                            {booking.status === 'Confirmed' && booking.rideId && (
+                                                <button
+                                                    onClick={() => navigate(`/live-ride/${booking.rideId!._id}`)}
+                                                    className="text-xs px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                                                >
+                                                    🚗 Track Live Ride
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
                             </div>
                         ))}
                     </div>

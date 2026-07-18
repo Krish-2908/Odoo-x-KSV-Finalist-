@@ -3,8 +3,10 @@ import config from './config/config.js'
 import { initRateLimiter } from './config/rateLimiter.js'
 import databaseService from './services/databaseService.js'
 import logger from './utils/logger.js'
+import { initSocket } from './services/socketService.js'
 
 const server = app.listen(config.PORT)
+initSocket(server)
 
 ;(() => {
     try {

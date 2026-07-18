@@ -112,6 +112,10 @@ const DriverDashboard: React.FC = () => {
         }
     }
 
+    const handleStartTrip = (rideId: string) => {
+        navigate(`/live-ride/${rideId}`)
+    }
+
     const pendingCount = bookings.filter((b) => b.status === 'Pending').length
 
     return (
@@ -324,12 +328,25 @@ const DriverDashboard: React.FC = () => {
                                             </div>
 
                                             {ride.status === 'Active' && (
-                                                <button
-                                                    onClick={() => handleCancelRide(ride._id)}
-                                                    className="w-full py-2 border border-red-200 text-red-500 hover:bg-red-50 text-sm font-semibold rounded-lg transition-colors"
-                                                >
-                                                    Cancel Ride Offer
-                                                </button>
+                                                <div className="flex gap-3">
+                                                    <button
+                                                        onClick={() => handleStartTrip(ride._id)}
+                                                        className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm"
+                                                    >
+                                                        🚀 Start / Track Trip
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleCancelRide(ride._id)}
+                                                        className="flex-1 py-2 border border-red-200 text-red-500 hover:bg-red-50 text-sm font-semibold rounded-lg transition-colors"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {ride.status === 'Completed' && (
+                                                <div className="py-2 bg-blue-50 border border-blue-100 rounded-lg text-xs text-blue-700 text-center font-semibold">
+                                                    ✓ Completed — Earnings credited to wallet
+                                                </div>
                                             )}
                                         </div>
                                     ))
