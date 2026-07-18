@@ -1,0 +1,7 @@
+import { Router } from 'express';
+const router = Router();
+router.get('/', (_req, res) => {
+    res.json({ message: 'Vehicle router working' });
+});
+export default router;
+//# sourceMappingURL=vehicleRouter.js.map

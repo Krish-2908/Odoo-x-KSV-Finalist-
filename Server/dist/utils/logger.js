@@ -4,19 +4,37 @@ import config from '../config/config.js';
 import { EApplicationEnvironment } from '../constant/application.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as sourceMapSupport from 'source-map-support';
+import { blue, green, red, yellow, magenta } from 'colorette';
+import 'winston-mongodb';
+// linking trace support
+sourceMapSupport.install();
+const colorizeLevel = (level) => {
+    switch (level) {
+        case 'ERROR':
+            return red(level);
+        case 'INFO':
+            return blue(level);
+        case 'WARN':
+            return yellow(level);
+        default:
+            return level;
+    }
+};
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const consoleLogFormat = format.printf((info) => {
     const { level, message, timestamp, meta = {} } = info;
-    const customLevel = level.toUpperCase();
-    const customTimestamp = timestamp;
+    const customLevel = colorizeLevel(level.toUpperCase());
+    const customTimestamp = green(timestamp);
     const customMessage = message;
     const customMeta = util.inspect(meta, {
         depth: null,
-        showHidden: false
+        showHidden: false,
+        colors: true
     });
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    const customLog = `${customLevel} [${customTimestamp}] ${customMessage}\n${'META'} ${customMeta}\n`;
+    const customLog = `${customLevel} [${customTimestamp}] ${customMessage}\n${magenta('META')} ${customMeta}\n`;
     return customLog;
 });
 const consoleTransport = () => {
@@ -62,10 +80,21 @@ const fileTransport = () => {
         })
     ];
 };
+const mongodbTransport = () => {
+    return [
+        new transports.MongoDB({
+            level: 'info',
+            db: config.DATABASE_URL,
+            metaKey: 'meta',
+            expireAfterSeconds: 3600 * 24 * 30,
+            collection: 'application-logs'
+        })
+    ];
+};
 export default createLogger({
     defaultMeta: {
         meta: {}
     },
-    transports: [...consoleTransport(), ...fileTransport()]
+    transports: [...consoleTransport(), ...fileTransport(), ...mongodbTransport()]
 });
 //# sourceMappingURL=logger.js.map

@@ -5,12 +5,20 @@ import router from './router/apiRouter.js';
 import globalErrorHandler from './middlewares/globalErrorHandler.js';
 import responseMessage from './constant/responseMessage.js';
 import httpError from './utils/httpError.js';
+import helmet from 'helmet';
+import cors from 'cors';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 // middlewares
+app.use(helmet());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../', 'public')));
+app.use(cors({
+    methods: ['GET', 'POST'],
+    origin: ['http://localhost:5173'],
+    credentials: true
+}));
 // Routes
 app.use('/api/v1', router);
 // 404 Handler
