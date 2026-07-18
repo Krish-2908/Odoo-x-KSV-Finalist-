@@ -11,6 +11,8 @@ import Vehicles from './pages/Vehicles'
 import OfferRide from './pages/OfferRide'
 import FindRide from './pages/FindRide'
 import RideDetails from './pages/RideDetails'
+import MyBookings from './pages/MyBookings'
+import DriverDashboard from './pages/DriverDashboard'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth()
@@ -88,6 +90,22 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <RideDetails />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/my-bookings" 
+                        element={
+                            <ProtectedRoute>
+                                <MyBookings />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/driver" 
+                        element={
+                            <ProtectedRoute>
+                                <DriverDashboard />
                             </ProtectedRoute>
                         } 
                     />

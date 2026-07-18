@@ -97,7 +97,7 @@ const Dashboard: React.FC = () => {
                                 </div>
                                 <h3 className="font-bold text-slate-800 text-lg">Find a Ride</h3>
                                 <p className="text-sm text-slate-500 mt-2 mb-6">
-                                    Search for rides offered by colleagues. Filter by pickup, destination, and work hours. Book instantly.
+                                    Search for rides offered by colleagues. Filter by date and seats. Book instantly.
                                 </p>
                             </div>
                             <button
@@ -124,6 +124,44 @@ const Dashboard: React.FC = () => {
                                 className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
                             >
                                 Offer a Ride
+                            </button>
+                        </div>
+
+                        {/* My Bookings */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 text-2xl font-bold mb-4">
+                                    🎫
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-lg">My Bookings</h3>
+                                <p className="text-sm text-slate-500 mt-2 mb-6">
+                                    View the status of your ride booking requests and cancel pending ones.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/my-bookings')}
+                                className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                                View My Bookings
+                            </button>
+                        </div>
+
+                        {/* Driver Dashboard */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 text-2xl font-bold mb-4">
+                                    🚘
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-lg">Driver Dashboard</h3>
+                                <p className="text-sm text-slate-500 mt-2 mb-6">
+                                    Manage incoming booking requests for your rides and view your published commutes.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/driver')}
+                                className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                                Driver Dashboard
                             </button>
                         </div>
                     </div>

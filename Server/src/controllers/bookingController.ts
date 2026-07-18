@@ -115,7 +115,7 @@ export default {
         httpResponse(req, res, 200, responseMessage.SUCCESS, bookings)
     }),
 
-    // PUT /bookings/:id/status - Driver confirms or rejects a booking
+    // PUT /bookings/:id/status - Driver confirms/rejects OR passenger cancels
     updateBookingStatus: asyncHandler(async (req: Request, res: Response) => {
         const authReq = req as AuthRequest
         if (!authReq.user) throw new HttpException(401, responseMessage.UNAUTHORIZED)
@@ -123,16 +123,38 @@ export default {
         const { status } = req.body
         const { id } = req.params
 
-        if (!['Confirmed', 'Rejected'].includes(status)) {
-            throw new HttpException(400, 'Status must be Confirmed or Rejected.')
+        if (!['Confirmed', 'Rejected', 'Cancelled'].includes(status)) {
+            throw new HttpException(400, 'Status must be Confirmed, Rejected, or Cancelled.')
         }
 
         const booking = await Booking.findById(id as any).populate('rideId')
         if (!booking) throw new HttpException(404, responseMessage.NOT_FOUND('Booking'))
 
-        // Check driver owns this ride
         const ride = booking.rideId as any
-        if (ride.driverId.toString() !== authReq.user._id.toString()) {
+
+        const isDriver = ride.driverId.toString() === authReq.user._id.toString()
+        const isPassenger = booking.passengerId.toString() === authReq.user._id.toString()
+
+        // Passenger can only cancel their own pending booking
+        if (status === 'Cancelled') {
+            if (!isPassenger) {
+                throw new HttpException(403, responseMessage.FORBIDDEN)
+            }
+            if (!['Pending', 'Confirmed'].includes(booking.status)) {
+                throw new HttpException(400, 'Only pending or confirmed bookings can be cancelled.')
+            }
+            // Restore seats to ride
+            await Ride.findByIdAndUpdate(ride._id, {
+                $inc: { availableSeats: booking.seatsBooked },
+                status: 'Active'
+            })
+            booking.status = 'Cancelled'
+            await booking.save()
+            return httpResponse(req, res, 200, 'Booking cancelled successfully.', booking)
+        }
+
+        // Driver can confirm or reject
+        if (!isDriver) {
             throw new HttpException(403, responseMessage.FORBIDDEN)
         }
 

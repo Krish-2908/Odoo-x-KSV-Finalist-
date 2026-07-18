@@ -135,5 +135,46 @@ export default {
         }
 
         httpResponse(req, res, 200, responseMessage.SUCCESS, ride)
+    }),
+
+    getMyRides: asyncHandler(async (req: Request, res: Response) => {
+        const authReq = req as AuthRequest
+        if (!authReq.user) {
+            throw new HttpException(401, responseMessage.UNAUTHORIZED)
+        }
+
+        const rides = await Ride.find({ driverId: authReq.user._id })
+            .populate('vehicleId', 'model registrationNumber seatingCapacity')
+            .sort({ travelDateTime: -1 })
+
+        httpResponse(req, res, 200, responseMessage.SUCCESS, rides)
+    }),
+
+    cancelRide: asyncHandler(async (req: Request, res: Response) => {
+        const authReq = req as AuthRequest
+        if (!authReq.user) {
+            throw new HttpException(401, responseMessage.UNAUTHORIZED)
+        }
+
+        const { id } = req.params
+        const { status } = req.body
+
+        if (status !== 'Cancelled') {
+            throw new HttpException(400, 'Only Cancelled status is allowed via this endpoint.')
+        }
+
+        const ride = await Ride.findOne({ _id: id as any, driverId: authReq.user._id })
+        if (!ride) {
+            throw new HttpException(404, responseMessage.NOT_FOUND('Ride'))
+        }
+
+        if (ride.status !== 'Active') {
+            throw new HttpException(400, 'Only active rides can be cancelled.')
+        }
+
+        ride.status = 'Cancelled'
+        await ride.save()
+
+        httpResponse(req, res, 200, 'Ride cancelled successfully.', ride)
     })
 }
