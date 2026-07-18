@@ -110,9 +110,22 @@ const mongodbTransport = (): Array<MongoDBTransportInstance> => {
     ]
 }
 
+const cleanMetaFormat = format((info) => {
+    if (info.meta) {
+        try {
+            // Convert meta to a plain JSON object to avoid serialization and RangeError issues with Mongoose documents
+            info.meta = JSON.parse(JSON.stringify(info.meta))
+        } catch (e) {
+            info.meta = { error: 'Failed to serialize log metadata' }
+        }
+    }
+    return info
+})
+
 export default createLogger({
     defaultMeta: {
         meta: {}
     },
+    format: format.combine(cleanMetaFormat()),
     transports: [...consoleTransport(), ...fileTransport(), ...mongodbTransport()]
 })

@@ -9,6 +9,9 @@ export interface IEmployee extends Document {
     status: 'Active' | 'Inactive'
     phone: string
     profilePicture?: string
+    department?: string
+    manager?: string
+    officeLocation?: string
     createdAt: Date
 }
 
@@ -21,6 +24,9 @@ const EmployeeSchema = new Schema<IEmployee>({
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
     phone: { type: String, required: true },
     profilePicture: { type: String },
+    department: { type: String },
+    manager: { type: String },
+    officeLocation: { type: String },
     createdAt: { type: Date, default: Date.now }
 })
 
