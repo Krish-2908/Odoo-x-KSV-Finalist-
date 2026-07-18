@@ -229,6 +229,25 @@ const Dashboard: React.FC = () => {
                                 Manage Saved Places
                             </button>
                         </div>
+
+                        {/* Trip History */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl font-bold mb-4">
+                                    📊
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-lg">Trip History</h3>
+                                <p className="text-sm text-slate-500 mt-2 mb-6">
+                                    View your full ride history as a driver and passenger, stats, and mark trips as completed.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/trip-history')}
+                                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                                View Trip History
+                            </button>
+                        </div>
                     </div>
                 )}
             </main>
