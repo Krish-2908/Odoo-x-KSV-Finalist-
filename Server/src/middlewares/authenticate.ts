@@ -27,7 +27,7 @@ export default async (req: Request, _res: Response, next: NextFunction): Promise
             throw new HttpException(401, responseMessage.UNAUTHORIZED)
         }
 
-        const employee = await Employee.findById(decoded.userId)
+        const employee = await Employee.findById(decoded.userId).select('-passwordHash')
         if (!employee) {
             throw new HttpException(401, responseMessage.UNAUTHORIZED)
         }
@@ -36,7 +36,7 @@ export default async (req: Request, _res: Response, next: NextFunction): Promise
             throw new HttpException(403, responseMessage.FORBIDDEN)
         }
 
-        ; (req as AuthRequest).user = employee
+        ;(req as AuthRequest).user = employee
         next()
     } catch (error) {
         httpError(next, error, req, error instanceof HttpException ? error.statusCode : 401)

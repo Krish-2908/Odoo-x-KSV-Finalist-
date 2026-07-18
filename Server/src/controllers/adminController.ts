@@ -18,9 +18,7 @@ export default {
             throw new HttpException(401, responseMessage.UNAUTHORIZED)
         }
 
-        const employees = await Employee.find({ companyId: authReq.user.companyId })
-            .select('-passwordHash')
-            .sort({ name: 1 })
+        const employees = await Employee.find({ companyId: authReq.user.companyId }).select('-passwordHash').sort({ name: 1 })
 
         httpResponse(req, res, 200, responseMessage.SUCCESS, employees)
     }),
@@ -114,9 +112,7 @@ export default {
             throw new HttpException(401, responseMessage.UNAUTHORIZED)
         }
 
-        const vehicles = await Vehicle.find({ companyId: authReq.user.companyId })
-            .populate('ownerId', 'name email phone')
-            .sort({ model: 1 })
+        const vehicles = await Vehicle.find({ companyId: authReq.user.companyId }).populate('ownerId', 'name email phone').sort({ model: 1 })
 
         httpResponse(req, res, 200, responseMessage.SUCCESS, vehicles)
     }),
@@ -260,4 +256,3 @@ export default {
         httpResponse(req, res, 200, responseMessage.SUCCESS, stats)
     })
 }
-
