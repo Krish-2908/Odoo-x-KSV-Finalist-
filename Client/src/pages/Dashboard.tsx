@@ -41,6 +41,14 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm font-bold text-slate-700">{user.name}</p>
                         <p className="text-xs text-slate-400 capitalize">{user.role}</p>
                     </div>
+                    {!isAdmin && (
+                        <button
+                            onClick={() => navigate('/wallet')}
+                            className="px-3 py-1.5 border border-blue-200 text-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-50 transition-colors"
+                        >
+                            Wallet
+                        </button>
+                    )}
                     <button
                         onClick={() => navigate('/settings')}
                         className="px-3 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-100 transition-colors"
@@ -162,6 +170,44 @@ const Dashboard: React.FC = () => {
                                 className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
                             >
                                 Driver Dashboard
+                            </button>
+                        </div>
+
+                        {/* My Wallet */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600 text-2xl font-bold mb-4">
+                                    💳
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-lg">My Wallet</h3>
+                                <p className="text-sm text-slate-500 mt-2 mb-6">
+                                    View your wallet balance, top up funds, and review your full transaction history.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/wallet')}
+                                className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                                Open Wallet
+                            </button>
+                        </div>
+
+                        {/* My Vehicles */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 text-2xl font-bold mb-4">
+                                    🚗
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-lg">My Vehicles</h3>
+                                <p className="text-sm text-slate-500 mt-2 mb-6">
+                                    Register and manage your personal vehicles for offering rides to colleagues.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/vehicles')}
+                                className="w-full py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                                Manage Vehicles
                             </button>
                         </div>
                     </div>

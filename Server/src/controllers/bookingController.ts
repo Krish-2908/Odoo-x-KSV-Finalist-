@@ -177,6 +177,11 @@ export default {
                 throw new HttpException(400, `Passenger has insufficient wallet balance for this booking.`)
             }
             wallet.balance -= booking.fareTotal
+            wallet.transactions.push({
+                amount: booking.fareTotal,
+                type: 'Debit',
+                description: `Ride booking confirmed – ${ride.pickupLocation?.address ?? ''} → ${ride.destination?.address ?? ''}`
+            })
             await wallet.save()
         }
 
