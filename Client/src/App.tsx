@@ -5,6 +5,8 @@ import Splash from './pages/Splash'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import AdminPanel from './pages/AdminPanel'
+import Settings from './pages/Settings'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth()
@@ -34,6 +36,22 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Dashboard />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/admin" 
+                        element={
+                            <ProtectedRoute>
+                                <AdminPanel />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/settings" 
+                        element={
+                            <ProtectedRoute>
+                                <Settings />
                             </ProtectedRoute>
                         } 
                     />

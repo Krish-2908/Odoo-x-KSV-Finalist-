@@ -143,5 +143,36 @@ export default {
         const userPopulated = await Employee.findById(authReq.user._id).populate('companyId', 'name domain address')
         
         httpResponse(req, res, 200, responseMessage.SUCCESS, userPopulated)
+    }),
+
+    updateProfile: asyncHandler(async (req: Request, res: Response) => {
+        const authReq = req as AuthRequest
+        if (!authReq.user) {
+            throw new HttpException(401, responseMessage.UNAUTHORIZED)
+        }
+
+        const { name, phone, profilePicture } = req.body
+
+        if (!name || !phone) {
+            throw new HttpException(400, responseMessage.INVALID_INPUT)
+        }
+
+        const employee = await Employee.findById(authReq.user._id)
+        if (!employee) {
+            throw new HttpException(404, responseMessage.NOT_FOUND('Employee'))
+        }
+
+        employee.name = name
+        employee.phone = phone
+        if (profilePicture !== undefined) {
+            employee.profilePicture = profilePicture
+        }
+
+        await employee.save()
+
+        const userObj = employee.toObject()
+        delete (userObj as any).passwordHash
+
+        httpResponse(req, res, 200, 'Profile updated successfully.', userObj)
     })
 }

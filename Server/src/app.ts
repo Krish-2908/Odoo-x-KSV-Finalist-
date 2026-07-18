@@ -19,7 +19,7 @@ app.use(express.json())
 app.use(express.static(path.join(__dirname, '../', 'public')))
 app.use(
     cors({
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         origin: ['http://localhost:5173'],
         credentials: true
     })

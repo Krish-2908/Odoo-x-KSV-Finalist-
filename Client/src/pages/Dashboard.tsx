@@ -42,8 +42,14 @@ const Dashboard: React.FC = () => {
                         <p className="text-xs text-slate-400 capitalize">{user.role}</p>
                     </div>
                     <button
-                        onClick={handleLogout}
+                        onClick={() => navigate('/settings')}
                         className="px-3 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-100 transition-colors"
+                    >
+                        Settings
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="px-3 py-1.5 border border-red-200 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-50 transition-colors"
                     >
                         Sign Out
                     </button>
