@@ -210,6 +210,25 @@ const Dashboard: React.FC = () => {
                                 Manage Vehicles
                             </button>
                         </div>
+
+                        {/* Saved Places */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 text-2xl font-bold mb-4">
+                                    📍
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-lg">Saved Places</h3>
+                                <p className="text-sm text-slate-500 mt-2 mb-6">
+                                    Save your favourite locations like Home and Office for quick address fill-in when creating rides.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/saved-places')}
+                                className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                                Manage Saved Places
+                            </button>
+                        </div>
                     </div>
                 )}
             </main>

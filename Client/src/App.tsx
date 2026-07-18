@@ -14,6 +14,7 @@ import RideDetails from './pages/RideDetails'
 import MyBookings from './pages/MyBookings'
 import DriverDashboard from './pages/DriverDashboard'
 import WalletPage from './pages/Wallet'
+import SavedPlaces from './pages/SavedPlaces'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth()
@@ -115,6 +116,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <WalletPage />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/saved-places" 
+                        element={
+                            <ProtectedRoute>
+                                <SavedPlaces />
                             </ProtectedRoute>
                         } 
                     />
