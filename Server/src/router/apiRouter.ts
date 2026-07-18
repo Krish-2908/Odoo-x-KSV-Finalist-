@@ -5,6 +5,7 @@ import authRouter from './authRouter.js'
 import adminRouter from './adminRouter.js'
 import vehicleRouter from './vehicleRouter.js'
 import rideRouter from './rideRouter.js'
+import bookingRouter from './bookingRouter.js'
 import tripRouter from './tripRouter.js'
 import walletRouter from './walletRouter.js'
 import savedPlaceRouter from './savedPlaceRouter.js'
@@ -20,6 +21,7 @@ router.use('/auth', authRouter)
 router.use('/admin', adminRouter)
 router.use('/vehicles', vehicleRouter)
 router.use('/rides', rideRouter)
+router.use('/bookings', bookingRouter)
 router.use('/trips', tripRouter)
 router.use('/wallet', walletRouter)
 router.use('/saved-places', savedPlaceRouter)

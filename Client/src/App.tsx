@@ -9,6 +9,8 @@ import AdminPanel from './pages/AdminPanel'
 import Settings from './pages/Settings'
 import Vehicles from './pages/Vehicles'
 import OfferRide from './pages/OfferRide'
+import FindRide from './pages/FindRide'
+import RideDetails from './pages/RideDetails'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth()
@@ -70,6 +72,22 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <OfferRide />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/find-ride" 
+                        element={
+                            <ProtectedRoute>
+                                <FindRide />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/rides/:id" 
+                        element={
+                            <ProtectedRoute>
+                                <RideDetails />
                             </ProtectedRoute>
                         } 
                     />

@@ -189,7 +189,6 @@ const Vehicles: React.FC = () => {
                         ))}
                         {vehicles.length === 0 && (
                             <div className="col-span-full bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
-                                <span className="text-4xl block mb-3">🚗</span>
                                 <h3 className="font-bold text-slate-700 text-lg">No Registered Vehicles</h3>
                                 <p className="text-slate-400 text-sm mt-1 mb-6">
                                     Register at least one vehicle to start offering rides to colleagues.
