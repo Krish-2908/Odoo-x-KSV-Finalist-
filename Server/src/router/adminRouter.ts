@@ -15,5 +15,6 @@ router.post('/vehicles', adminController.addVehicle)
 router.get('/settings', adminController.getSettings)
 router.put('/settings', adminController.updateSettings)
 router.get('/reports/participation', adminController.getParticipationReport)
+router.get('/trips', adminController.getCompanyTripHistory)
 
 export default router

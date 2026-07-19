@@ -6,6 +6,8 @@ import Vehicle from '../models/Vehicle.js'
 import Company from '../models/Company.js'
 import Wallet from '../models/Wallet.js'
 import OrganizationSettings from '../models/OrganizationSettings.js'
+import Ride from '../models/Ride.js'
+import Booking from '../models/Booking.js'
 import httpResponse from '../utils/httpResponse.js'
 import responseMessage from '../constant/responseMessage.js'
 import HttpException from '../utils/httpException.js'
@@ -254,5 +256,45 @@ export default {
         }
 
         httpResponse(req, res, 200, responseMessage.SUCCESS, stats)
+    }),
+
+    // GET /admin/trips - Fetch full company trip history for Admin
+    getCompanyTripHistory: asyncHandler(async (req: Request, res: Response) => {
+        const authReq = req as AuthRequest
+        if (!authReq.user) throw new HttpException(401, responseMessage.UNAUTHORIZED)
+
+        const page = parseInt(String(req.query.page ?? '1'))
+        const limit = parseInt(String(req.query.limit ?? '20'))
+        const statusFilter = req.query.status as string | undefined
+
+        // Find all employees belonging to the admin's company
+        const companyEmployees = await Employee.find({ companyId: authReq.user.companyId }).select('_id')
+        const employeeIds = companyEmployees.map((e) => e._id)
+
+        // Build Ride query for this company's drivers
+        const query: Record<string, any> = { driverId: { $in: employeeIds } }
+        if (statusFilter && ['Active', 'Completed', 'Cancelled'].includes(statusFilter)) {
+            query.status = statusFilter
+        }
+
+        const total = await Ride.countDocuments(query)
+        const rides = await Ride.find(query)
+            .populate('driverId', 'name email phone department')
+            .populate('vehicleId', 'model registrationNumber seatingCapacity')
+            .sort({ travelDateTime: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+
+        // Attach bookings for each ride
+        const tripsWithBookings = await Promise.all(
+            rides.map(async (ride) => {
+                const bookings = await Booking.find({ rideId: ride._id })
+                    .populate('passengerId', 'name email phone department')
+                    .sort({ createdAt: -1 })
+                return { ride, bookings }
+            })
+        )
+
+        httpResponse(req, res, 200, responseMessage.SUCCESS, { trips: tripsWithBookings, total, page, limit })
     })
 }

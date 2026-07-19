@@ -7,6 +7,7 @@ import API from '../services/api'
 import AdminEmployees from '../components/Admin/AdminEmployees'
 import AdminVehicles from '../components/Admin/AdminVehicles'
 import AdminSettings from '../components/Admin/AdminSettings'
+import AdminTrips from '../components/Admin/AdminTrips'
 
 interface Employee {
     _id: string
@@ -61,7 +62,7 @@ interface ParticipationReport {
 const AdminPanel: React.FC = () => {
     const { user, logout } = useAuth()
     const navigate = useNavigate()
-    const [activeTab, setActiveTab] = useState<'employees' | 'vehicles' | 'settings' | 'reports'>('employees')
+    const [activeTab, setActiveTab] = useState<'employees' | 'vehicles' | 'trips' | 'settings' | 'reports'>('employees')
 
     // State definitions
     const [employees, setEmployees] = useState<Employee[]>([])
@@ -184,6 +185,7 @@ const AdminPanel: React.FC = () => {
                     {[
                         { id: 'employees', label: 'Employees' },
                         { id: 'vehicles', label: 'Registered Vehicles' },
+                        { id: 'trips', label: 'Company Trip History' },
                         { id: 'settings', label: 'Organization Settings' },
                         { id: 'reports', label: 'Reports & Metrics' }
                     ].map((tab) => (
@@ -229,6 +231,8 @@ const AdminPanel: React.FC = () => {
                                 onRefresh={fetchVehicles}
                             />
                         )}
+
+                        {activeTab === 'trips' && <AdminTrips />}
 
                         {activeTab === 'settings' && settings && company && (
                             <AdminSettings
